@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHAJ Parivaar Mein Shaamil Hoon — Accessible India ka Hissa Bano</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:linear-gradient(135deg,#FFF8F0 0%,#F0F4FF 50%,#F0FFF4 100%);min-height:100vh;display:flex;flex-direction:column;">
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon">♿</div>
+    <div><h1>SAHAJ</h1>
+      <span>Aasaan Raasta · Sabke Liye</span></div>
+  </div>
+  <div></div>
+  <div><a href="index.html" class="btn btn-outline btn-sm">← Back to Home</a></div>
+</nav>
+
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:90px 24px 40px;">
+  <div style="width:100%;max-width:520px;">
+
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:64px;margin-bottom:12px;">🇮🇳</div>
+      <h2 style="font-family:var(--font-display);font-size:30px;margin-bottom:6px;">SAHAJ Parivaar Mein Shaamil Hoon</h2>
+      <p style="color:var(--text-secondary);">Wheelchair users ke liye awaaz bano — accessible India banao</p>
+    </div>
+
+    <!-- Benefits -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;">
+      <div style="text-align:center;padding:14px;background:white;border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:24px;margin-bottom:6px;">📍</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);">Report Locations</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:white;border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:24px;margin-bottom:6px;">✅</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);">Verify Places</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:white;border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:24px;margin-bottom:6px;">🏆</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);">Earn Badges</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+      <div class="card-body" style="padding:36px;">
+
+        <div id="alertBox"></div>
+
+        <form id="registerForm">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label required">Full Name</label>
+              <input type="text" id="name" class="form-control" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" id="city" class="form-control" placeholder="Your city" list="cityList">
+              <datalist id="cityList">
+                <option value="New Delhi"><option value="Mumbai"><option value="Bengaluru">
+                <option value="Ahmedabad"><option value="Chennai"><option value="Hyderabad">
+                <option value="Pune"><option value="Kolkata"><option value="Jaipur">
+              </datalist>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Password</label>
+            <div style="position:relative;">
+              <input type="password" id="password" class="form-control" placeholder="Minimum 6 characters" required minlength="6" style="padding-right:44px;" oninput="checkStrength()">
+              <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
+            </div>
+            <div id="strengthBar" style="margin-top:8px;display:none;">
+              <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+                <div id="strengthFill" style="height:100%;border-radius:2px;transition:all 0.3s;"></div>
+              </div>
+              <div id="strengthLabel" style="font-size:11px;margin-top:4px;color:var(--text-muted);"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Confirm Password</label>
+            <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat your password" required>
+          </div>
+
+          <div style="padding:12px 14px;background:var(--saffron-pale);border-radius:var(--radius-sm);border-left:3px solid var(--saffron);font-size:13px;color:var(--text-secondary);margin-bottom:20px;">
+            ♻️ 10 reports ke baad aap automatically <strong>Verified Contributor</strong> ban jaate hain!
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="registerBtn">
+            🚀 SAHAJ Parivaar Mein Shaamil Hoon
+          </button>
+        </form>
+
+        <div style="text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <p style="color:var(--text-secondary);font-size:14px;">
+            Already have an account? <a href="login.html" style="color:var(--saffron);font-weight:600;">Login →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/auth.js"></script>
+<script>
+  function togglePwd() {
+    const p = document.getElementById('password');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  }
+
+  function checkStrength() {
+    const p = document.getElementById('password').value;
+    const bar = document.getElementById('strengthBar');
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+
+    if (p.length === 0) { bar.style.display = 'none'; return; }
+    bar.style.display = 'block';
+
+    let strength = 0;
+    if (p.length >= 6) strength++;
+    if (p.length >= 10) strength++;
+    if (/[A-Z]/.test(p)) strength++;
+    if (/[0-9]/.test(p)) strength++;
+    if (/[^A-Za-z0-9]/.test(p)) strength++;
+
+    const levels = [
+      { pct: 20, color: '#C62828', text: 'Very Weak' },
+      { pct: 40, color: '#E65100', text: 'Weak' },
+      { pct: 60, color: '#F57F17', text: 'Fair' },
+      { pct: 80, color: '#2E7D32', text: 'Strong' },
+      { pct: 100, color: '#1B5E20', text: 'Very Strong' }
+    ];
+    const level = levels[Math.min(strength - 1, 4)] || levels[0];
+    fill.style.width = level.pct + '%';
+    fill.style.background = level.color;
+    label.textContent = level.text;
+    label.style.color = level.color;
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const city = document.getElementById('city').value;
+
+    if (password !== confirmPassword) {
+      showAlert('❌ Passwords do not match!', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Creating account...';
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, city })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showAlert('✅ ' + data.message, 'success');
+        setTimeout(() => { window.location.href = 'map.html'; }, 1000);
+      } else {
+        showAlert('❌ ' + data.message, 'error');
+        btn.disabled = false;
+        btn.textContent = '🚀 SAHAJ Parivaar Mein Shaamil Hoon';
+      }
+    } catch (err) {
+      showAlert('❌ Server unavailable. Please try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = '🚀 SAHAJ Parivaar Mein Shaamil Hoon';
+    }
+  });
+
+  function showAlert(msg, type) {
+    document.getElementById('alertBox').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+</script>
+</body>
+</html>

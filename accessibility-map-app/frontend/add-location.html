@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Location — SAHAJ Accessibility Map</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    .add-layout { display: grid; grid-template-columns: 1fr 420px; gap: 32px; max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .add-form-section { }
+    .add-map-section { }
+    #pickMap { height: 300px; border-radius: var(--radius); border: 2px solid var(--border); overflow:hidden; }
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      padding: 12px 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      background: var(--saffron);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .photo-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .photo-preview-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+    }
+    .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-preview-item .remove-photo {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+    .score-preview {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--saffron-pale), var(--blue-light));
+      border-radius: var(--radius);
+      margin-top: 16px;
+    }
+    .score-big {
+      font-family: var(--font-display);
+      font-size: 56px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .score-bar-container { margin: 12px 0; }
+    .score-bar {
+      height: 12px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--accessible-none), var(--accessible-partial), var(--accessible-full));
+      transition: width 0.4s ease;
+    }
+    @media(max-width:900px) {
+      .add-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon">♿</div>
+    <div>
+      <h1>SAHAJ</h1>
+      <span>Aasaan Raasta · Sabke Liye</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="map.html">🗺 Map</a></li>
+    <li><a href="add-location.html" class="active">📍 Add Location</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-auth" id="navAuth">
+    <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+    <a href="register.html" class="btn btn-primary btn-sm">Join Now</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div style="background:linear-gradient(135deg,var(--saffron-pale),var(--blue-light));padding:32px 24px;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
+        <a href="index.html">Home</a> › <a href="map.html">Map</a> › Add Location
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:32px;margin-bottom:8px;">📍 SAHAJ — Naya Location Report Karein</h1>
+      <p style="color:var(--text-secondary);max-width:600px;">Aapka ek report, laakhon wheelchair users ki zindagi aasaan kar sakta hai. SAHAJ ke saath India ko accessible banao.</p>
+    </div>
+  </div>
+
+  <div class="add-layout">
+    <!-- LEFT: FORM -->
+    <div class="add-form-section">
+      <div id="alertBox"></div>
+
+      <form id="addLocationForm" enctype="multipart/form-data">
+
+        <!-- STEP 1: BASIC INFO -->
+        <div class="form-section-title">
+          <div class="step-num">1</div> Basic Information
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label required">Location Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. AIIMS New Delhi, Rajiv Chowk Metro" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">City</label>
+            <input type="text" id="city" name="city" class="form-control" placeholder="e.g. New Delhi, Mumbai, Ahmedabad" required list="cityList">
+            <datalist id="cityList">
+              <option value="New Delhi"><option value="Mumbai"><option value="Bengaluru">
+              <option value="Ahmedabad"><option value="Chennai"><option value="Hyderabad">
+              <option value="Pune"><option value="Kolkata"><option value="Jaipur">
+              <option value="Surat"><option value="Lucknow"><option value="Kanpur">
+            </datalist>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Full Address</label>
+          <input type="text" id="address" name="address" class="form-control" placeholder="Street address, landmark, area..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required">Type of Place</label>
+          <select id="accessibilityType" name="accessibilityType" class="form-control" required>
+            <option value="">-- Select Type --</option>
+            <option value="hospital">🏥 Hospital / Healthcare</option>
+            <option value="government_office">🏛 Government Office</option>
+            <option value="metro_station">🚇 Metro Station</option>
+            <option value="bus_stop">🚌 Bus Stop / Transport</option>
+            <option value="railway_station">🚂 Railway Station</option>
+            <option value="airport">✈️ Airport</option>
+            <option value="shopping_mall">🛒 Shopping Mall</option>
+            <option value="park">🌳 Park / Public Space</option>
+            <option value="educational_institution">🏫 School / College</option>
+            <option value="religious_place">⛪ Religious Place</option>
+            <option value="bank">🏦 Bank / ATM</option>
+            <option value="public_building">🏢 Public Building</option>
+            <option value="other">📍 Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="description" name="description" class="form-control" placeholder="Describe the accessibility features or barriers. Be specific to help others..." rows="3"></textarea>
+        </div>
+
+        <!-- STEP 2: LOCATION -->
+        <div class="form-section-title" style="margin-top:32px;">
+          <div class="step-num">2</div> Set Location on Map
+        </div>
+
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">Click the map on the right to set coordinates, or use your current location.</p>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label class="form-label required">Latitude</label>
+            <input type="number" id="lat" name="lat" class="form-control" placeholder="e.g. 28.6139" step="0.000001" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Longitude</label>
+            <input type="number" id="lng" name="lng" class="form-control" placeholder="e.g. 77.2090" step="0.000001" required>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-outline btn-sm" onclick="useCurrentLocation()">
+          📍 Use My Current Location
+        </button>
+
+        <!-- STEP 3: ACCESSIBILITY FEATURES -->
+        <div class="form-section-title" style="margin-top:32px;">
+          <div class="step-num">3</div> Accessibility Features
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Select all features available at this location. This calculates the accessibility score.</p>
+
+        <div class="checkbox-grid" id="featuresGrid">
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasRamp">
+            <input type="checkbox" name="hasRamp" value="true"> <span>♿ Wheelchair Ramp</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasElevator">
+            <input type="checkbox" name="hasElevator" value="true"> <span>🛗 Elevator / Lift</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasAccessibleToilet">
+            <input type="checkbox" name="hasAccessibleToilet" value="true"> <span>🚻 Accessible Toilet</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasAccessibleParking">
+            <input type="checkbox" name="hasAccessibleParking" value="true"> <span>🅿 Accessible Parking</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasWideDoors">
+            <input type="checkbox" name="hasWideDoors" value="true"> <span>🚪 Wide Doors (90cm+)</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasAudioSignals">
+            <input type="checkbox" name="hasAudioSignals" value="true"> <span>🔊 Audio Signals</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasBrailleSignage">
+            <input type="checkbox" name="hasBrailleSignage" value="true"> <span>⬛ Braille Signage</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasAccessibleTransport">
+            <input type="checkbox" name="hasAccessibleTransport" value="true"> <span>🚌 Accessible Transport</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasLowFloorBus">
+            <input type="checkbox" name="hasLowFloorBus" value="true"> <span>🚌 Low-Floor Bus</span>
+          </label>
+          <label class="checkbox-item" onclick="toggleCheck(this)" data-field="hasWheelchairAvailable">
+            <input type="checkbox" name="hasWheelchairAvailable" value="true"> <span>♿ Wheelchairs on Loan</span>
+          </label>
+        </div>
+
+        <!-- STEP 4: PHOTOS -->
+        <div class="form-section-title" style="margin-top:32px;">
+          <div class="step-num">4</div> Upload Photos / Evidence
+        </div>
+
+        <div class="file-upload-zone" id="dropZone" onclick="document.getElementById('photoUpload').click()">
+          <div class="upload-icon">📸</div>
+          <p><strong>Click to upload</strong> or drag & drop photos</p>
+          <p style="margin-top:4px;font-size:12px;">JPG, PNG, WEBP up to 5MB each • Max 5 photos</p>
+        </div>
+        <input type="file" id="photoUpload" name="photos" multiple accept="image/*,video/*" style="display:none" onchange="previewPhotos(event)">
+        <div class="photo-preview" id="photoPreview"></div>
+
+        <!-- SUBMIT -->
+        <div style="margin-top:32px;display:flex;gap:12px;">
+          <button type="submit" class="btn btn-primary btn-lg" style="flex:1;" id="submitBtn">
+            📍 Submit Accessibility Report
+          </button>
+          <a href="map.html" class="btn btn-outline btn-lg">Cancel</a>
+        </div>
+
+        <p style="font-size:12px;color:var(--text-muted);margin-top:12px;text-align:center;">
+          Submit karne se aap confirm karte hain ki yeh jaankari sahi hai. Galat reports se account suspend ho sakta hai.
+        </p>
+      </form>
+    </div>
+
+    <!-- RIGHT: MAP + SCORE PREVIEW -->
+    <div class="add-map-section">
+      <div style="position:sticky;top:90px;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">📍 Click map to set location</div>
+        <div id="pickMap"></div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Click anywhere on the map to set coordinates automatically</p>
+
+        <!-- Score Preview -->
+        <div class="score-preview">
+          <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">ACCESSIBILITY SCORE PREVIEW</div>
+          <div class="score-big" id="scoreDisplay" style="color:var(--text-muted);">0</div>
+          <div style="font-size:13px;color:var(--text-muted);">out of 10</div>
+          <div class="score-bar-container">
+            <div class="score-bar">
+              <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+            </div>
+          </div>
+          <div id="scoreLabel" style="font-size:14px;font-weight:600;color:var(--text-muted);">Select features above</div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Score calculated automatically based on selected accessibility features</p>
+        </div>
+
+        <!-- Tips -->
+        <div style="margin-top:16px;background:var(--blue-light);border-radius:var(--radius-sm);padding:16px;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--blue-accent);">💡 Reporting Tips</div>
+          <ul style="font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;padding-left:16px;">
+            <li>Upload clear photos of ramps, lifts, and toilets</li>
+            <li>Be honest — partial accessibility is still valuable data</li>
+            <li>Include barriers too, not just features</li>
+            <li>5 community verifications = ✅ Verified status</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/addLocation.js"></script>
+</body>
+</html>

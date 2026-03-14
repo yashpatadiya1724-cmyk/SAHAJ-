@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — SAHAJ Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 70px); }
+    .admin-sidebar {
+      background: var(--text-primary);
+      padding: 24px 0;
+      position: sticky;
+      top: 70px;
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+    }
+    .admin-sidebar .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; }
+    .admin-sidebar .sidebar-logo h2 { color: white; font-family: var(--font-display); font-size: 18px; }
+    .admin-sidebar .sidebar-logo p { color: rgba(255,255,255,0.5); font-size: 12px; }
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .admin-nav-item:hover, .admin-nav-item.active { background: rgba(255,255,255,0.08); color: white; }
+    .admin-nav-item.active { border-left: 3px solid var(--saffron); }
+    .admin-content { padding: 32px; background: var(--bg-primary); overflow-y: auto; }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
+    .table-wrapper { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    .action-btns { display: flex; gap: 6px; }
+    @media(max-width:768px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { position:static; height:auto; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon">♿</div>
+    <div><h1>SAHAJ</h1><span>SAHAJ Admin · Sabka Naqsha</span></div>
+  </div>
+  <div></div>
+  <div style="display:flex;gap:8px;">
+    <a href="index.html" class="btn btn-outline btn-sm">← Site</a>
+    <button onclick="logout()" class="btn btn-danger btn-sm">Logout</button>
+  </div>
+</nav>
+
+<div style="padding-top:70px;">
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <div class="admin-sidebar">
+    <div class="sidebar-logo">
+      <h2>🛡 SAHAJ Admin</h2>
+      <p id="adminName">Loading...</p>
+    </div>
+    <button class="admin-nav-item active" onclick="showSection('overview')">📊 Overview</button>
+    <button class="admin-nav-item" onclick="showSection('locations')">📍 Locations</button>
+    <button class="admin-nav-item" onclick="showSection('users')">👥 Users</button>
+    <button class="admin-nav-item" onclick="showSection('flagged')">🚩 Flagged Reports</button>
+    <div style="padding:20px;margin-top:auto;">
+      <a href="add-location.html" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">+ Add Location</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="admin-content">
+
+    <!-- ACCESS GUARD -->
+    <div id="accessDenied" style="display:none;text-align:center;padding:80px 20px;">
+      <div style="font-size:64px;margin-bottom:16px;">🔒</div>
+      <h2 style="font-size:24px;margin-bottom:12px;">Admin Access Required</h2>
+      <p style="color:var(--text-secondary);margin-bottom:24px;">You need admin privileges to access this panel.</p>
+      <a href="index.html" class="btn btn-primary">← Back to Home</a>
+    </div>
+
+    <!-- OVERVIEW SECTION -->
+    <div class="admin-section active" id="section-overview">
+      <h2 style="font-family:var(--font-display);font-size:28px;margin-bottom:24px;">📊 System Overview</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;" id="adminStats">
+        <div class="stat-card saffron"><div class="stat-icon saffron">📍</div><div class="stat-info"><h3 id="as-total">—</h3><p>Total Locations</p></div></div>
+        <div class="stat-card green"><div class="stat-icon green">✅</div><div class="stat-info"><h3 id="as-verified">—</h3><p>Verified</p></div></div>
+        <div class="stat-card blue"><div class="stat-icon blue">👥</div><div class="stat-info"><h3 id="as-users">—</h3><p>Total Users</p></div></div>
+        <div class="stat-card purple"><div class="stat-icon purple">🚩</div><div class="stat-info"><h3 id="as-flagged">—</h3><p>Flagged Reports</p></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 style="font-size:16px;font-weight:700;">Quick Actions</h3></div>
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="showSection('flagged')">🚩 Review Flagged Reports</button>
+          <button class="btn btn-outline" onclick="showSection('locations')">📍 Manage Locations</button>
+          <button class="btn btn-outline" onclick="showSection('users')">👥 Manage Users</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCATIONS SECTION -->
+    <div class="admin-section" id="section-locations">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <h2 style="font-family:var(--font-display);font-size:28px;">📍 Manage Locations</h2>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="locSearch" class="form-control" placeholder="Search locations..." style="width:220px;" oninput="filterLocTable()">
+          <a href="add-location.html" class="btn btn-primary btn-sm">+ Add</a>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>City</th><th>Type</th><th>Status</th><th>Score</th><th>Verified</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="locTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS SECTION -->
+    <div class="admin-section" id="section-users">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <h2 style="font-family:var(--font-display);font-size:28px;">👥 Manage Users</h2>
+        <input type="text" id="userSearch" class="form-control" placeholder="Search users..." style="width:220px;" oninput="filterUserTable()">
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Role</th><th>City</th><th>Contributions</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FLAGGED SECTION -->
+    <div class="admin-section" id="section-flagged">
+      <h2 style="font-family:var(--font-display);font-size:28px;margin-bottom:24px;">🚩 Flagged Reports</h2>
+      <div id="flaggedList">
+        <div style="text-align:center;padding:40px;"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/auth.js"></script>
+<script>
+  const API = 'http://localhost:5000/api';
+  let allLocations = [], allUsers = [];
+
+  // Access check
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = getUser();
+    if (!user || user.role !== 'admin') {
+      document.getElementById('accessDenied').style.display = 'block';
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelector('.admin-sidebar').style.display = 'none';
+      return;
+    }
+    document.getElementById('adminName').textContent = user.name;
+    loadOverview();
+    loadLocations();
+    loadUsers();
+    loadFlagged();
+  });
+
+  function showSection(name) {
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name)?.classList.add('active');
+    event?.target?.classList?.add('active');
+  }
+
+  async function loadOverview() {
+    try {
+      const res = await fetch(`${API}/locations/dashboard`);
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('as-total').textContent = data.stats.totalLocations;
+        document.getElementById('as-verified').textContent = data.stats.verifiedLocations;
+        document.getElementById('as-users').textContent = data.stats.totalUsers;
+      }
+    } catch(e) {}
+
+    try {
+      const res2 = await fetch(`${API}/locations/flagged`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const d2 = await res2.json();
+      document.getElementById('as-flagged').textContent = d2.count || 0;
+    } catch(e) { document.getElementById('as-flagged').textContent = '0'; }
+  }
+
+  async function loadLocations() {
+    try {
+      const res = await fetch(`${API}/locations`);
+      const data = await res.json();
+      allLocations = data.locations || getDemoLocations();
+    } catch(e) { allLocations = getDemoLocations(); }
+    renderLocTable(allLocations);
+  }
+
+  function renderLocTable(locs) {
+    const statusMap = { fully_accessible: '🟢', partially_accessible: '🟡', not_accessible: '🔴', unknown: '❓' };
+    document.getElementById('locTableBody').innerHTML = locs.map(loc => `
+      <tr>
+        <td><strong>${loc.name}</strong></td>
+        <td>${loc.city || '—'}</td>
+        <td style="font-size:12px;">${formatType(loc.accessibilityType)}</td>
+        <td>${statusMap[loc.accessibilityStatus] || '❓'} ${formatStatus(loc.accessibilityStatus)}</td>
+        <td><strong>${loc.accessibilityScore || 0}/10</strong></td>
+        <td>${loc.isVerified ? '<span class="badge badge-verified">✅ Yes</span>' : '<span class="badge badge-unknown">No</span>'}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-danger btn-sm" onclick="deleteLocation('${loc._id}')">🗑 Remove</button>
+            ${!loc.isFlagged ? `<button class="btn btn-sm" style="background:#FFF8E1;color:var(--warning);border:1px solid var(--warning);" onclick="flagLoc('${loc._id}',true)">🚩 Flag</button>` : `<button class="btn btn-green btn-sm" onclick="flagLoc('${loc._id}',false)">✔ Approve</button>`}
+          </div>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">No locations found</td></tr>';
+  }
+
+  function filterLocTable() {
+    const q = document.getElementById('locSearch').value.toLowerCase();
+    renderLocTable(allLocations.filter(l => l.name?.toLowerCase().includes(q) || l.city?.toLowerCase().includes(q)));
+  }
+
+  async function deleteLocation(id) {
+    if (!id || !confirm('Are you sure you want to remove this location?')) return;
+    try {
+      const res = await fetch(`${API}/locations/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` } });
+      const data = await res.json();
+      if (data.success) { showToast('Location removed', 'success'); loadLocations(); loadOverview(); }
+      else showToast(data.message, 'error');
+    } catch(e) { showToast('Action failed', 'error'); }
+  }
+
+  async function flagLoc(id, flag) {
+    if (!id) return;
+    try {
+      const res = await fetch(`${API}/locations/${id}/flag`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ flag })
+      });
+      const data = await res.json();
+      if (data.success) { showToast(flag ? 'Location flagged' : 'Location approved', 'success'); loadLocations(); }
+      else showToast(data.message, 'error');
+    } catch(e) { showToast('Action failed', 'error'); }
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await fetch(`${API}/auth/users`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const data = await res.json();
+      allUsers = data.users || getDemoUsers();
+    } catch(e) { allUsers = getDemoUsers(); }
+    renderUserTable(allUsers);
+  }
+
+  function renderUserTable(users) {
+    document.getElementById('userTableBody').innerHTML = users.map(u => `
+      <tr style="${u.isBanned ? 'opacity:0.5;' : ''}">
+        <td><strong>${u.name}</strong></td>
+        <td style="font-size:13px;">${u.email}</td>
+        <td><span class="badge badge-${u.role}">${u.role}</span></td>
+        <td>${u.city || '—'}</td>
+        <td><strong>${u.contributionsCount || 0}</strong></td>
+        <td>${u.isBanned ? '<span class="badge badge-none">Banned</span>' : '<span class="badge badge-fully">Active</span>'}</td>
+        <td>
+          <div class="action-btns">
+            <select class="form-control" style="padding:4px 8px;font-size:12px;height:auto;" onchange="updateRole('${u._id}',this.value)">
+              <option value="user" ${u.role==='user'?'selected':''}>User</option>
+              <option value="contributor" ${u.role==='contributor'?'selected':''}>Contributor</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+            </select>
+            <button class="btn btn-sm ${u.isBanned ? 'btn-green' : 'btn-danger'}" onclick="toggleBan('${u._id}',${!u.isBanned},'${u.name}')">
+              ${u.isBanned ? '✔ Unban' : '🚫 Ban'}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;">No users found</td></tr>';
+  }
+
+  function filterUserTable() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    renderUserTable(allUsers.filter(u => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)));
+  }
+
+  async function toggleBan(id, ban, name) {
+    const reason = ban ? prompt(`Reason for banning ${name}:`) : null;
+    if (ban && !reason) return;
+    try {
+      const res = await fetch(`${API}/auth/users/${id}/ban`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ ban, reason })
+      });
+      const data = await res.json();
+      if (data.success) { showToast(ban ? `${name} banned` : `${name} unbanned`, 'success'); loadUsers(); }
+      else showToast(data.message, 'error');
+    } catch(e) { showToast('Action failed', 'error'); }
+  }
+
+  async function updateRole(id, role) {
+    try {
+      const res = await fetch(`${API}/auth/users/${id}/role`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ role })
+      });
+      const data = await res.json();
+      if (data.success) showToast(`Role updated to ${role}`, 'success');
+      else showToast(data.message, 'error');
+    } catch(e) { showToast('Action failed', 'error'); }
+  }
+
+  async function loadFlagged() {
+    try {
+      const res = await fetch(`${API}/locations/flagged`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const data = await res.json();
+      renderFlagged(data.locations || []);
+    } catch(e) { renderFlagged([]); }
+  }
+
+  function renderFlagged(locations) {
+    const container = document.getElementById('flaggedList');
+    if (locations.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:60px 20px;"><div style="font-size:64px;margin-bottom:16px;">✅</div><h3 style="font-size:20px;margin-bottom:8px;">No Flagged Reports</h3><p style="color:var(--text-secondary);">All locations are clean and approved.</p></div>`;
+      return;
+    }
+    container.innerHTML = locations.map(loc => `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+            <div>
+              <h3 style="font-size:18px;margin-bottom:4px;">${loc.name}</h3>
+              <p style="color:var(--text-secondary);font-size:14px;">📍 ${loc.city} • ${formatType(loc.accessibilityType)}</p>
+              <p style="font-size:13px;margin-top:8px;">${loc.description || 'No description provided.'}</p>
+              <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">By: ${loc.createdBy?.name || 'Unknown'} (${loc.createdBy?.email || ''})</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button class="btn btn-green btn-sm" onclick="flagLoc('${loc._id}',false);loadFlagged();">✔ Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteLocation('${loc._id}');loadFlagged();">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Helpers
+  function formatType(t) {
+    return { hospital:'Hospital', government_office:'Govt Office', metro_station:'Metro', bus_stop:'Bus Stop', railway_station:'Railway', airport:'Airport', shopping_mall:'Mall', park:'Park', educational_institution:'Education', public_building:'Public Bldg', other:'Other' }[t] || t;
+  }
+  function formatStatus(s) {
+    return { fully_accessible:'Full', partially_accessible:'Partial', not_accessible:'None', unknown:'Unknown' }[s] || s;
+  }
+
+  function getDemoLocations() {
+    return [
+      { _id: '1', name: 'AIIMS Delhi', city: 'New Delhi', accessibilityType: 'hospital', accessibilityStatus: 'fully_accessible', accessibilityScore: 9, isVerified: true, isFlagged: false },
+      { _id: '2', name: 'Rajiv Chowk Metro', city: 'New Delhi', accessibilityType: 'metro_station', accessibilityStatus: 'fully_accessible', accessibilityScore: 8, isVerified: true, isFlagged: false }
+    ];
+  }
+
+  function getDemoUsers() {
+    return [
+      { _id: '1', name: 'Priya Sharma', email: 'priya@example.com', role: 'contributor', city: 'Bengaluru', contributionsCount: 47, isBanned: false },
+      { _id: '2', name: 'Rahul Verma', email: 'rahul@example.com', role: 'user', city: 'Mumbai', contributionsCount: 12, isBanned: false }
+    ];
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — SAHAJ, Aasaan Raasta</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:linear-gradient(135deg,#FFF8F0 0%,#F0F4FF 50%,#F0FFF4 100%);min-height:100vh;display:flex;flex-direction:column;">
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon">♿</div>
+    <div><h1>SAHAJ</h1>
+      <span>Aasaan Raasta · Sabke Liye</span></div>
+  </div>
+  <div></div>
+  <div><a href="index.html" class="btn btn-outline btn-sm">← Back to Home</a></div>
+</nav>
+
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:90px 24px 40px;">
+  <div style="width:100%;max-width:460px;">
+
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:64px;margin-bottom:12px;">♿</div>
+      <h2 style="font-family:var(--font-display);font-size:30px;color:var(--text-primary);margin-bottom:6px;">SAHAJ mein Wapas Swagat Hai!</h2>
+      <p style="color:var(--text-secondary);font-size:15px;">Login karein aur accessible India banane mein haath batayein</p>
+    </div>
+
+    <div class="card" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+      <div class="card-body" style="padding:36px;">
+
+        <div id="alertBox"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label required">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="your@email.com" required autofocus>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Password</label>
+            <div style="position:relative;">
+              <input type="password" id="password" class="form-control" placeholder="Your password" required style="padding-right:44px;">
+              <button type="button" onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" id="eyeBtn">👁</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" id="loginBtn">
+            Login to SAHAJ
+          </button>
+        </form>
+
+        <div style="text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+          <p style="color:var(--text-secondary);font-size:14px;">
+            Don't have an account? <a href="register.html" style="color:var(--saffron);font-weight:600;">Register here →</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Demo credentials notice -->
+    <div style="margin-top:16px;background:rgba(255,153,51,0.1);border:1px solid var(--saffron);border-radius:var(--radius-sm);padding:14px 16px;text-align:center;">
+      <p style="font-size:13px;color:var(--text-secondary);">
+        🧪 <strong>Demo:</strong> Register a new account or use any credentials you created
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/auth.js"></script>
+<script>
+  function togglePassword() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    document.getElementById('eyeBtn').textContent = input.type === 'password' ? '👁' : '🙈';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Logging in...';
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showAlert('✅ ' + data.message, 'success');
+        setTimeout(() => { window.location.href = 'map.html'; }, 800);
+      } else {
+        showAlert('❌ ' + data.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Login to SAHAJ';
+      }
+    } catch (err) {
+      showAlert('❌ Server unavailable. Please check your connection.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Login to SAHAJ';
+    }
+  });
+
+  function showAlert(msg, type) {
+    document.getElementById('alertBox').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHAJ — Seamless Accessibility Hub for All Journey-makers</title>
+  <meta name="description" content="India's first crowdsourced wheelchair accessibility map. Discover, report & verify accessible public infrastructure across Indian cities. Vikshit Bharat 2047.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♿</text></svg>">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="logo-icon">♿</div>
+    <div>
+      <h1>SAHAJ</h1>
+      <span>Aasaan Raasta · Sabke Liye</span>
+    </div>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html" class="active">🏠 Home</a></li>
+    <li><a href="map.html">🗺 Map</a></li>
+    <li><a href="add-location.html">📍 Add Location</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-auth" id="navAuth">
+    <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+    <a href="register.html" class="btn btn-primary btn-sm">Join Now</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        🇮🇳 Vikshit Bharat 2047 · Pillar 6: Social Inclusion & Justice
+      </div>
+      <h1>
+        Aasaan Raasta,<br>
+        <span class="highlight">Sabke Liye</span>
+      </h1>
+      <p>
+        India ka pehla crowdsourced <strong>wheelchair accessibility map</strong>. Discover, report aur verify karein accessible public infrastructure — hospitals, metro stations, government offices aur bahut kuch.
+        <br><br>
+        <strong>SAHAJ</strong> — <em>Seamless Accessibility Hub for All Journey-makers</em>
+      </p>
+      <div class="hero-cta">
+        <a href="map.html" class="btn btn-primary btn-lg">🗺 Explore Map</a>
+        <a href="add-location.html" class="btn btn-outline btn-lg">📍 Report Location</a>
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div class="hero-stat">
+          <span class="num" id="statLocations">—</span>
+          <span class="label">Locations Mapped</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num" id="statVerified">—</span>
+          <span class="label">Verified Places</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num" id="statCities">—</span>
+          <span class="label">Cities Covered</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num" id="statContributors">—</span>
+          <span class="label">Contributors</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCESSIBILITY TYPES -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>What We Map</h2>
+      <div class="section-line"></div>
+      <p>Discover and report accessibility infrastructure across all types of public spaces in India</p>
+    </div>
+    <div class="grid grid-4">
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🏨</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Hospitals</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Ramps, accessible wards, wheelchair paths</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🚇</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Metro Stations</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Elevators, tactile paths, accessible exits</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🏛</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Govt Offices</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Accessible entrances, ramps, lifts</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🚌</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Bus Stops</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Low-floor buses, level boarding</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🛒</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Shopping Malls</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Elevators, wide aisles, accessible parking</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🏫</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Schools & Colleges</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Ramps, accessible classrooms</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🌳</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Parks</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Paved paths, accessible seating, toilets</p>
+      </div>
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">✈️</div>
+        <h3 style="font-size:16px;margin-bottom:8px;">Airports & Stations</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">Wheelchair assistance, elevators</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <h2>SAHAJ Kaise Kaam Karta Hai?</h2>
+      <div class="section-line"></div>
+      <p>Ek community-driven platform — accessible India ke liye, accessible India ke dwara</p>
+    </div>
+    <div class="grid grid-3">
+      <div style="text-align:center;padding:24px;">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--saffron),var(--saffron-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;">📍</div>
+        <h3 style="font-size:20px;margin-bottom:12px;">1. Discover & Report</h3>
+        <p style="color:var(--text-secondary);">Find accessible places near you on our interactive map. Report new locations with photos and accessibility details.</p>
+      </div>
+      <div style="text-align:center;padding:24px;">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--india-green),#2E7D32);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;">✔️</div>
+        <h3 style="font-size:20px;margin-bottom:12px;">2. Verify Together</h3>
+        <p style="color:var(--text-secondary);">Community members verify reports. 5 confirmations = ✅ Verified Accessible. Quality through crowdsourcing.</p>
+      </div>
+      <div style="text-align:center;padding:24px;">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--blue-accent),var(--navy-chakra));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;">🏆</div>
+        <h3 style="font-size:20px;margin-bottom:12px;">3. Build Inclusive India</h3>
+        <p style="color:var(--text-secondary);">Data drives policy. City accessibility scores help governments prioritize infrastructure improvements.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCESSIBILITY LEGEND -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Accessibility Status System</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid grid-3">
+      <div class="card" style="border-top:5px solid var(--accessible-full);">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:56px;margin-bottom:16px;">🟢</div>
+          <h3 style="color:var(--accessible-full);font-size:22px;margin-bottom:8px;">Fully Accessible</h3>
+          <p style="color:var(--text-secondary);">Score 7–10/10. Has ramps, elevators, accessible toilets, and wide doors. Suitable for wheelchair users.</p>
+        </div>
+      </div>
+      <div class="card" style="border-top:5px solid var(--accessible-partial);">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:56px;margin-bottom:16px;">🟡</div>
+          <h3 style="color:var(--accessible-partial);font-size:22px;margin-bottom:8px;">Partially Accessible</h3>
+          <p style="color:var(--text-secondary);">Score 4–6/10. Some accessibility features present but not complete. May require assistance.</p>
+        </div>
+      </div>
+      <div class="card" style="border-top:5px solid var(--accessible-none);">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:56px;margin-bottom:16px;">🔴</div>
+          <h3 style="color:var(--accessible-none);font-size:22px;margin-bottom:8px;">Not Accessible</h3>
+          <p style="color:var(--text-secondary);">Score 0–3/10. Significant barriers exist. Needs urgent accessibility improvements.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT LOCATIONS -->
+<section class="section section-alt">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:32px;">Recently Added</h2>
+        <p style="color:var(--text-secondary);">Latest accessibility reports from the community</p>
+      </div>
+      <a href="map.html" class="btn btn-outline">View All →</a>
+    </div>
+    <div class="grid grid-3" id="recentLocations">
+      <div style="text-align:center;padding:40px;grid-column:1/-1;">
+        <div class="spinner"></div>
+        <p style="color:var(--text-muted);">Loading locations...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION BANNER -->
+<section class="section" style="background:linear-gradient(135deg,var(--text-primary),#1a2a4a);color:white;">
+  <div class="container" style="text-align:center;">
+    <div style="font-family:var(--font-display);font-size:22px;color:var(--saffron-light);letter-spacing:2px;margin-bottom:8px;">
+        ♿ SAHAJ अभियान ♿
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:36px;color:white;margin-bottom:16px;">
+        Seamless Accessibility Hub<br>for All Journey-makers
+      </h2>
+      <p style="font-size:18px;color:rgba(255,255,255,0.8);max-width:700px;margin:0 auto 32px;line-height:1.8;">
+        Har wheelchair user ka haq hai — bina kisi rukawat ke apni manzil tak pahunchne ka. SAHAJ unki awaaz hai, unka naqsha hai, unka haq hai.
+        <br>Aligned with <strong>RPWD Act 2016</strong> aur <strong>Vikshit Bharat 2047</strong>.
+      </p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+      <a href="register.html" class="btn btn-primary btn-lg">Join the Movement 🚀</a>
+      <a href="dashboard.html" class="btn" style="background:rgba(255,255,255,0.15);color:white;border:2px solid rgba(255,255,255,0.3);" class="btn-lg">View Impact 📊</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="tiranga-divider" style="margin-bottom:32px;">
+      <span class="s"></span>
+      <span class="w"></span>
+      <span class="g"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:32px;">
+      <div>
+        <h3>♿ SAHAJ</h3>
+        <p style="margin-top:4px;font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:1px;">SEAMLESS ACCESSIBILITY HUB FOR ALL JOURNEY-MAKERS</p>
+        <p style="margin-top:12px;line-height:1.8;">
+          India ka pehla crowdsourced wheelchair accessibility platform. Vikshit Bharat 2047 Pillar 6 — Social Inclusion & Justice ko support karta hai. Har nagarik ke liye, har jagah.
+        </p>
+      </div>
+      <div>
+        <h3 style="font-size:16px;margin-bottom:16px;">Quick Links</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="map.html" style="color:rgba(255,255,255,0.6);font-size:14px;">🗺 Accessibility Map</a>
+          <a href="add-location.html" style="color:rgba(255,255,255,0.6);font-size:14px;">📍 Add Location</a>
+          <a href="dashboard.html" style="color:rgba(255,255,255,0.6);font-size:14px;">📊 City Dashboard</a>
+          <a href="register.html" style="color:rgba(255,255,255,0.6);font-size:14px;">👤 Join Us</a>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:16px;margin-bottom:16px;">Policies</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="#" style="color:rgba(255,255,255,0.6);font-size:14px;">RPWD Act 2016</a>
+          <a href="#" style="color:rgba(255,255,255,0.6);font-size:14px;">Accessible India Campaign</a>
+          <a href="#" style="color:rgba(255,255,255,0.6);font-size:14px;">SAHAJ App</a>
+          <a href="#" style="color:rgba(255,255,255,0.6);font-size:14px;">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap:12px;">
+      <p style="font-size:13px;">© 2024 SAHAJ — Seamless Accessibility Hub for All Journey-makers · Vikshit Bharat 2047 🇮🇳</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);">Jai Hind 🙏</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/auth.js"></script>
+<script>
+  const API = 'http://localhost:5000/api';
+
+  // Load hero stats from dashboard
+  async function loadHeroStats() {
+    try {
+      const res = await fetch(`${API}/locations/dashboard`);
+      const data = await res.json();
+      if (data.success) {
+        const s = data.stats;
+        document.getElementById('statLocations').textContent = s.totalLocations.toLocaleString('en-IN');
+        document.getElementById('statVerified').textContent = s.verifiedLocations.toLocaleString('en-IN');
+        document.getElementById('statCities').textContent = data.cityStats.length;
+        document.getElementById('statContributors').textContent = s.totalUsers.toLocaleString('en-IN');
+
+        renderRecentLocations(data.recentLocations);
+      }
+    } catch(e) {
+      console.log('API not available — using demo data');
+      document.getElementById('statLocations').textContent = '2,847';
+      document.getElementById('statVerified').textContent = '1,234';
+      document.getElementById('statCities').textContent = '47';
+      document.getElementById('statContributors').textContent = '8,921';
+      renderDemoLocations();
+    }
+  }
+
+  function renderRecentLocations(locations) {
+    const container = document.getElementById('recentLocations');
+    if (!locations || locations.length === 0) {
+      renderDemoLocations();
+      return;
+    }
+    container.innerHTML = locations.slice(0,3).map(loc => createLocationCard(loc)).join('');
+  }
+
+  function renderDemoLocations() {
+    const demo = [
+      { name: 'AIIMS New Delhi', city: 'New Delhi', accessibilityStatus: 'fully_accessible', accessibilityScore: 9, accessibilityType: 'hospital', isVerified: true, features: { hasRamp: true, hasElevator: true, hasAccessibleToilet: true }, upvotes: 24, confirmations: 12 },
+      { name: 'Rajiv Chowk Metro Station', city: 'New Delhi', accessibilityStatus: 'fully_accessible', accessibilityScore: 8, accessibilityType: 'metro_station', isVerified: true, features: { hasElevator: true, hasAccessibleToilet: true, hasBrailleSignage: true }, upvotes: 18, confirmations: 7 },
+      { name: 'Sardar Vallabhbhai Patel Statue Museum', city: 'Ahmedabad', accessibilityStatus: 'partially_accessible', accessibilityScore: 6, accessibilityType: 'public_building', isVerified: false, features: { hasRamp: true, hasAccessibleParking: true }, upvotes: 8, confirmations: 3 }
+    ];
+    document.getElementById('recentLocations').innerHTML = demo.map(loc => createLocationCard(loc)).join('');
+  }
+
+  function createLocationCard(loc) {
+    const statusClass = {
+      'fully_accessible': 'status-full',
+      'partially_accessible': 'status-partial',
+      'not_accessible': 'status-none',
+      'unknown': 'status-unknown'
+    }[loc.accessibilityStatus] || 'status-unknown';
+
+    const statusBadge = {
+      'fully_accessible': '<span class="badge badge-fully">🟢 Fully Accessible</span>',
+      'partially_accessible': '<span class="badge badge-partial">🟡 Partial</span>',
+      'not_accessible': '<span class="badge badge-none">🔴 Not Accessible</span>',
+      'unknown': '<span class="badge badge-unknown">❓ Unknown</span>'
+    }[loc.accessibilityStatus] || '';
+
+    const scoreClass = loc.accessibilityScore >= 7 ? 'score-high' : loc.accessibilityScore >= 4 ? 'score-mid' : 'score-low';
+
+    const features = loc.features || {};
+    const featureTags = [
+      features.hasRamp && '♿ Ramp',
+      features.hasElevator && '🛗 Elevator',
+      features.hasAccessibleToilet && '🚻 Toilet',
+      features.hasAccessibleParking && '🅿 Parking',
+      features.hasBrailleSignage && '⬛ Braille',
+    ].filter(Boolean).slice(0, 3);
+
+    return `
+      <div class="location-card ${statusClass}">
+        <div class="card-status-bar"></div>
+        <div class="card-content">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="flex:1;">
+              <h3>${loc.name}</h3>
+              <p class="location-meta">📍 ${loc.city} · ${formatType(loc.accessibilityType)}</p>
+            </div>
+            <div class="score-circle ${scoreClass}">
+              ${loc.accessibilityScore}<small style="font-size:10px;">/10</small>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            ${statusBadge}
+            ${loc.isVerified ? '<span class="badge badge-verified">✅ Verified</span>' : ''}
+          </div>
+          <div class="features-row">
+            ${featureTags.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+          </div>
+          <div class="vote-actions">
+            <span class="vote-btn">👍 ${loc.upvotes || 0}</span>
+            <span class="vote-btn confirm-btn">✔ ${loc.confirmations || 0} confirmations</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function formatType(type) {
+    const types = {
+      'public_building': 'Public Building', 'hospital': 'Hospital',
+      'government_office': 'Govt Office', 'metro_station': 'Metro Station',
+      'bus_stop': 'Bus Stop', 'railway_station': 'Railway Station',
+      'airport': 'Airport', 'shopping_mall': 'Shopping Mall',
+      'park': 'Park', 'educational_institution': 'Education',
+      'other': 'Other'
+    };
+    return types[type] || type;
+  }
+
+  loadHeroStats();
+</script>
+</body>
+</html>
